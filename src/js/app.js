@@ -17,17 +17,16 @@ gamePlay.bindToDOM(document.querySelector("#game-container"));
 const stateService = new GameStateService(localStorage);
 const gameCtrl = new GameController(gamePlay, stateService);
 gameCtrl.init();
-gamePlay.drawUi(themes.prairie);
 
-let arr2 = [Bowman, Daemon, Magician];
-// const bowTest = new PositionedCharacter(bow, 23);
-// const bowTest2 = new PositionedCharacter(bow, 45);
-// const arr = [bowTest, bowTest2];
-console.dir(arr2);
-let gen = generateTeam(arr2, 1, 2);
-console.log(gen);
-let posit = generateStart(gen.members, "people");
-console.log(posit);
+// let arr2 = [Bowman, Daemon, Magician];
+// // const bowTest = new PositionedCharacter(bow, 23);
+// // const bowTest2 = new PositionedCharacter(bow, 45);
+// // const arr = [bowTest, bowTest2];
+// console.dir(arr2);
+// let gen = generateTeam(arr2, 1, 2);
+// console.log(gen);
+// let posit = generateStart(gen.members, "people");
+// console.log(posit);
 
-gamePlay.redrawPositions(posit);
+// gamePlay.redrawPositions(posit);
 // don't write your code here

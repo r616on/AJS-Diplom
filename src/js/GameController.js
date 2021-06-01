@@ -52,6 +52,7 @@ export default class GameController {
   }
 
   onCellEnter(cellIndex) {
+    // Тут ошибка!!
     this.playingField.forEach((person) => {
       if (person.position === cellIndex) {
         const message = `${U1F396}  ${person.character.level} ${U2694} ${person.character.attack} ${U1F6E1} ${person.character.defence}`;

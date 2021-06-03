@@ -4,7 +4,7 @@
 import GamePlay from "./GamePlay";
 import GameController from "./GameController";
 import GameStateService from "./GameStateService";
-import themes from "./themes";
+import genAvailableFeld from "./genAvailableFeld";
 import PositionedCharacter from "./PositionedCharacter";
 import Bowman from "./person/Bowman";
 import Daemon from "./person/Daemon";
@@ -17,6 +17,8 @@ gamePlay.bindToDOM(document.querySelector("#game-container"));
 const stateService = new GameStateService(localStorage);
 const gameCtrl = new GameController(gamePlay, stateService);
 gameCtrl.init();
+
+console.log(genAvailableFeld(9, 4));
 
 // let arr2 = [Bowman, Daemon, Magician];
 // // const bowTest = new PositionedCharacter(bow, 23);

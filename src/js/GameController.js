@@ -17,7 +17,7 @@ export default class GameController {
 
   init() {
     this.startGame();
-    this.personInfo();
+
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
@@ -32,7 +32,7 @@ export default class GameController {
       "ii"
     );
     this.playingField = userStart.concat(iiStart);
-
+    this.personInfo();
     this.gamePlay.redrawPositions(this.playingField);
   }
   onCellClick(index) {
@@ -48,17 +48,26 @@ export default class GameController {
   }
   personInfo() {
     // <- что это за метод и где это нужно сделать решите сами
-    this.gamePlay.addCellLeaveListener(this.onCellEnter);
+    this.gamePlay.addCellLeaveListener(this.onCellEnter.bind(this));
   }
 
   onCellEnter(cellIndex) {
-    // Тут ошибка!!
     this.playingField.forEach((person) => {
       if (person.position === cellIndex) {
-        const message = `${U1F396}  ${person.character.level} ${U2694} ${person.character.attack} ${U1F6E1} ${person.character.defence}`;
+        let message = `${String.fromCodePoint("0x0001F396")}  ${
+          person.character.level
+        } `;
+        message += `${String.fromCodePoint("0x2694")}  ${
+          person.character.attack
+        } `;
+        message += `${String.fromCodePoint("0x0001F6E1")}  ${
+          person.character.defence
+        } `;
+        message += `${String.fromCodePoint("0x2764")}  ${
+          person.character.health
+        } `;
         this.gamePlay.showCellTooltip(message, cellIndex);
       }
     });
-    // some logic here
   }
 }

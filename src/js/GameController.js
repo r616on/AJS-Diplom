@@ -4,6 +4,7 @@ import Magician from "./person/Magician";
 import Swordsman from "./person/Swordsman";
 import Undead from "./person/Undead";
 import Vampire from "./person/Vampire";
+import GamePlay from "./GamePlay";
 
 import { generateTeam, generateStart } from "./generators";
 import themes from "./themes";
@@ -17,7 +18,9 @@ export default class GameController {
 
   init() {
     this.startGame();
-
+    this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
+    this.gamePlay.addCellLeaveListener(this.noCellEnter.bind(this));
+    this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
@@ -36,7 +39,30 @@ export default class GameController {
     this.gamePlay.redrawPositions(this.playingField);
   }
   onCellClick(index) {
-    // TODO: react to click
+    this.playingField.forEach((person) => {
+      if (person.position === index) {
+        if (
+          person.character.type === "bowman" ||
+          person.character.type === "swordsman" ||
+          person.character.type === "magician"
+        ) {
+          const selectIdex = this.gamePlay.cells.findIndex((element) => {
+            if (element.classList.contains("selected")) {
+              return true;
+            }
+          });
+          if (selectIdex > -1) {
+            this.gamePlay.deselectCell(selectIdex);
+          }
+          this.gamePlay.selectCell(index);
+        } else {
+          //////////////////////////////////////////////////////////////xz
+          GamePlay.showError(index, "Персонаж не выбран");
+        }
+      }
+
+      // TODO: react to click
+    });
   }
 
   onCellEnter(index) {
@@ -48,7 +74,6 @@ export default class GameController {
   }
   personInfo() {
     // <- что это за метод и где это нужно сделать решите сами
-    this.gamePlay.addCellLeaveListener(this.onCellEnter.bind(this));
   }
 
   onCellEnter(cellIndex) {
@@ -69,5 +94,8 @@ export default class GameController {
         this.gamePlay.showCellTooltip(message, cellIndex);
       }
     });
+  }
+  noCellEnter(cellIndex) {
+    this.gamePlay.hideCellTooltip(cellIndex);
   }
 }

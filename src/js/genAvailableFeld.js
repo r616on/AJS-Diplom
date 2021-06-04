@@ -71,7 +71,7 @@ export default function genAvailableFeld(index, num) {
     } else if ((index - 7) % size === 0) {
       arrResultFin = genArrPers(index, 1, "noRight").concat(
         genArrPers(index, 2, "noRight"),
-        genArrPers(index, 4, "noRight"),
+        genArrPers(index, 3, "noRight"),
         genArrPers(index, 4, "noRight")
       );
     } else if ((index - 1) % size === 0) {

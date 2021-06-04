@@ -18,7 +18,7 @@ const stateService = new GameStateService(localStorage);
 const gameCtrl = new GameController(gamePlay, stateService);
 gameCtrl.init();
 
-console.log(genAvailableFeld(9, 4));
+console.log(genAvailableFeld(7, 4));
 
 // let arr2 = [Bowman, Daemon, Magician];
 // // const bowTest = new PositionedCharacter(bow, 23);

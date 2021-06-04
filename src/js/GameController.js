@@ -5,6 +5,8 @@ import Swordsman from "./person/Swordsman";
 import Undead from "./person/Undead";
 import Vampire from "./person/Vampire";
 import GamePlay from "./GamePlay";
+import cursors from "./cursors";
+import genAvailableFeld from "./genAvailableFeld";
 
 import { generateTeam, generateStart } from "./generators";
 import themes from "./themes";
@@ -14,13 +16,24 @@ export default class GameController {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
     this.playingField = [];
+    this.activePerson = {};
+    this.activePersonPosition = -1;
+    this.activePersonTravelArr = [];
+    this.activePersonPotentialAttackArr = [];
   }
 
   init() {
     this.startGame();
-    this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
-    this.gamePlay.addCellLeaveListener(this.noCellEnter.bind(this));
-    this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
+    this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
+    this.gamePlay.addCellEnterListener(this.cursorsPointer.bind(this));
+    this.gamePlay.addCellEnterListener(this.travelRadius.bind(this));
+
+    this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
+    this.gamePlay.addCellLeaveListener(this.noCursorsPointer.bind(this));
+    this.gamePlay.addCellLeaveListener(this.noTravelRadius.bind(this));
+    //this.gamePlay.addCellLeaveListener(this.notransitionRadius.bind(this));
+
+    this.gamePlay.addCellClickListener(this.characterSelect.bind(this));
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
@@ -38,9 +51,10 @@ export default class GameController {
     this.personInfo();
     this.gamePlay.redrawPositions(this.playingField);
   }
-  onCellClick(index) {
-    this.playingField.forEach((person) => {
-      if (person.position === index) {
+  characterSelect(cellIndex) {
+    let i = 0;
+    this.playingField.forEach((person, index) => {
+      if (person.position === cellIndex) {
         if (
           person.character.type === "bowman" ||
           person.character.type === "swordsman" ||
@@ -54,29 +68,62 @@ export default class GameController {
           if (selectIdex > -1) {
             this.gamePlay.deselectCell(selectIdex);
           }
-          this.gamePlay.selectCell(index);
-        } else {
-          //////////////////////////////////////////////////////////////xz
-          GamePlay.showError(index, "Персонаж не выбран");
+          i += 1;
+          this.gamePlay.selectCell(cellIndex);
+          this.activePerson = this.playingField[index].character;
+          this.activePersonPosition = cellIndex;
+          this.activePersonTravelArr = genAvailableFeld(
+            cellIndex,
+            this.playingField[index].character.travelRange
+          );
+          this.activePersonPotentialAttackArr = genAvailableFeld(
+            cellIndex,
+            this.playingField[index].character.attackRange
+          );
         }
       }
+    });
+    if (i === 0) {
+      GamePlay.showError("Персонаж не выбран");
+    }
+  }
 
-      // TODO: react to click
+  cursorsPointer(index) {
+    this.playingField.forEach((person) => {
+      if (person.position === index) {
+        if (
+          person.character.type === "bowman" ||
+          person.character.type === "swordsman" ||
+          person.character.type === "magician"
+        ) {
+          const selectIdex = this.gamePlay.cells.findIndex((element) => {
+            if (element.classList.contains("selected")) {
+              return true;
+            }
+          });
+          if (selectIdex > -1 && !(selectIdex === index)) {
+            this.gamePlay.setCursor(cursors.pointer);
+          }
+        }
+      }
     });
   }
-
-  onCellEnter(index) {
-    // TODO: react to mouse enter
+  travelRadius(cellIndex) {
+    if (this.activePersonTravelArr.includes(cellIndex)) {
+      this.gamePlay.selectCell(cellIndex, "green");
+      this.gamePlay.setCursor(cursors.pointer);
+    }
   }
-
+  noTravelRadius(cellIndex) {
+    if (this.activePersonTravelArr.includes(cellIndex)) {
+      this.gamePlay.deselectCell(cellIndex);
+    }
+  }
   onCellLeave(index) {
     // TODO: react to mouse leave
   }
-  personInfo() {
-    // <- что это за метод и где это нужно сделать решите сами
-  }
 
-  onCellEnter(cellIndex) {
+  personInfo(cellIndex) {
     this.playingField.forEach((person) => {
       if (person.position === cellIndex) {
         let message = `${String.fromCodePoint("0x0001F396")}  ${
@@ -95,7 +142,10 @@ export default class GameController {
       }
     });
   }
-  noCellEnter(cellIndex) {
+  noPersonInfo(cellIndex) {
     this.gamePlay.hideCellTooltip(cellIndex);
+  }
+  noCursorsPointer(cellIndex) {
+    this.gamePlay.setCursor(cursors.auto);
   }
 }

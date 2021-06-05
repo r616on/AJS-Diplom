@@ -1,4 +1,4 @@
-import genAvailableFeld from "../genAvailableFeld";
+import genAvailableTravel from "../genAvailableTravel";
 
 // test("the shopping list has milk on it", () => {
 //   expect(shoppingList).toContain("milk");
@@ -62,13 +62,13 @@ const data = [
   ],
 ];
 test.each(data)(
-  "Test available cells func 'genAvailableFeld' Position = %s , level = %s ",
+  "Test available cells func 'genAvailableTravel' Position = %s , level = %s ",
   (index, cells, expected) => {
     expected = expected.sort((a, b) => {
       if (a > b) return 1;
       if (a == b) return 0;
       if (a < b) return -1;
     });
-    expect(genAvailableFeld(index, cells)).toEqual(expected);
+    expect(genAvailableTravel(index, cells)).toEqual(expected);
   }
 );

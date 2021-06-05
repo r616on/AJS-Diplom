@@ -6,7 +6,7 @@ import Undead from "./person/Undead";
 import Vampire from "./person/Vampire";
 import GamePlay from "./GamePlay";
 import cursors from "./cursors";
-import genAvailableFeld from "./genAvailableFeld";
+import genAvailableTravel from "./genAvailableTravel";
 
 import { generateTeam, generateStart } from "./generators";
 import themes from "./themes";
@@ -48,7 +48,6 @@ export default class GameController {
       "ii"
     );
     this.playingField = userStart.concat(iiStart);
-    this.personInfo();
     this.gamePlay.redrawPositions(this.playingField);
   }
   characterSelect(cellIndex) {
@@ -60,23 +59,18 @@ export default class GameController {
           person.character.type === "swordsman" ||
           person.character.type === "magician"
         ) {
-          const selectIdex = this.gamePlay.cells.findIndex((element) => {
-            if (element.classList.contains("selected")) {
-              return true;
-            }
-          });
-          if (selectIdex > -1) {
-            this.gamePlay.deselectCell(selectIdex);
+          if (this.activePersonPosition > -1) {
+            this.gamePlay.deselectCell(this.activePersonPosition);
           }
           i += 1;
           this.gamePlay.selectCell(cellIndex);
           this.activePerson = this.playingField[index].character;
           this.activePersonPosition = cellIndex;
-          this.activePersonTravelArr = genAvailableFeld(
+          this.activePersonTravelArr = genAvailableTravel(
             cellIndex,
             this.playingField[index].character.travelRange
           );
-          this.activePersonPotentialAttackArr = genAvailableFeld(
+          this.activePersonPotentialAttackArr = genAvailableTravel(
             cellIndex,
             this.playingField[index].character.attackRange
           );
@@ -88,20 +82,18 @@ export default class GameController {
     }
   }
 
-  cursorsPointer(index) {
+  cursorsPointer(cellIndex) {
     this.playingField.forEach((person) => {
-      if (person.position === index) {
+      if (person.position === cellIndex) {
         if (
           person.character.type === "bowman" ||
           person.character.type === "swordsman" ||
           person.character.type === "magician"
         ) {
-          const selectIdex = this.gamePlay.cells.findIndex((element) => {
-            if (element.classList.contains("selected")) {
-              return true;
-            }
-          });
-          if (selectIdex > -1 && !(selectIdex === index)) {
+          if (
+            this.activePersonPosition > -1 &&
+            !(this.activePersonPosition === cellIndex)
+          ) {
             this.gamePlay.setCursor(cursors.pointer);
           }
         }

@@ -1,6 +1,8 @@
 export default class Team {
   constructor() {
     this.members = [];
+    this.ii = [];
+    this.people = [];
   }
 
   add(obj) {

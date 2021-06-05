@@ -7,12 +7,14 @@ import Vampire from "./person/Vampire";
 import GamePlay from "./GamePlay";
 import cursors from "./cursors";
 import genAvailableTravel from "./genAvailableTravel";
+import genAvailableAttack from "./genAvailableAttack";
 
 import { generateTeam, generateStart } from "./generators";
 import themes from "./themes";
 
 export default class GameController {
-  constructor(gamePlay, stateService) {
+  constructor(gamePlay, stateService, team) {
+    this.team = team;
     this.gamePlay = gamePlay;
     this.stateService = stateService;
     this.playingField = [];
@@ -39,42 +41,36 @@ export default class GameController {
   }
   startGame() {
     this.gamePlay.drawUi(themes.prairie);
-    const userStart = generateStart(
+    this.team.people = generateStart(
       [new Bowman(1), new Swordsman(1)],
       "people"
     );
-    const iiStart = generateStart(
+    this.team.ii = generateStart(
       generateTeam([Daemon, Undead, Vampire], 1, 2).members,
       "ii"
     );
-    this.playingField = userStart.concat(iiStart);
+    this.playingField = this.team.people.concat(this.team.ii);
     this.gamePlay.redrawPositions(this.playingField);
   }
   characterSelect(cellIndex) {
     let i = 0;
-    this.playingField.forEach((person, index) => {
+    this.team.people.forEach((person, index) => {
       if (person.position === cellIndex) {
-        if (
-          person.character.type === "bowman" ||
-          person.character.type === "swordsman" ||
-          person.character.type === "magician"
-        ) {
-          if (this.activePersonPosition > -1) {
-            this.gamePlay.deselectCell(this.activePersonPosition);
-          }
-          i += 1;
-          this.gamePlay.selectCell(cellIndex);
-          this.activePerson = this.playingField[index].character;
-          this.activePersonPosition = cellIndex;
-          this.activePersonTravelArr = genAvailableTravel(
-            cellIndex,
-            this.playingField[index].character.travelRange
-          );
-          this.activePersonPotentialAttackArr = genAvailableTravel(
-            cellIndex,
-            this.playingField[index].character.attackRange
-          );
+        if (this.activePersonPosition > -1) {
+          this.gamePlay.deselectCell(this.activePersonPosition);
         }
+        i += 1;
+        this.gamePlay.selectCell(cellIndex);
+        this.activePerson = this.team.people[index].character;
+        this.activePersonPosition = cellIndex;
+        this.activePersonTravelArr = genAvailableTravel(
+          cellIndex,
+          this.team.people[index].character.travelRange
+        );
+        this.activePersonPotentialAttackArr = genAvailableAttack(
+          cellIndex,
+          this.team.people[index].character.attackRange
+        );
       }
     });
     if (i === 0) {
@@ -83,19 +79,13 @@ export default class GameController {
   }
 
   cursorsPointer(cellIndex) {
-    this.playingField.forEach((person) => {
+    this.team.people.forEach((person) => {
       if (person.position === cellIndex) {
         if (
-          person.character.type === "bowman" ||
-          person.character.type === "swordsman" ||
-          person.character.type === "magician"
+          this.activePersonPosition > -1 &&
+          !(this.activePersonPosition === cellIndex)
         ) {
-          if (
-            this.activePersonPosition > -1 &&
-            !(this.activePersonPosition === cellIndex)
-          ) {
-            this.gamePlay.setCursor(cursors.pointer);
-          }
+          this.gamePlay.setCursor(cursors.pointer);
         }
       }
     });

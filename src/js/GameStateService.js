@@ -2,12 +2,24 @@ export default class GameStateService {
   constructor(storage) {
     this.storage = storage;
     this.level = 1;
-    this.running = "people";
+    this.running = "";
     this.playingField = [];
+    this.peopleTeam = [];
+    this.iiTeam = [];
+    this.activePersonPosition = -1;
   }
 
-  save(state) {
-    this.storage.setItem("state", JSON.stringify(state));
+  save() {
+    const saveData = {
+      storage: this.storage,
+      level: this.level,
+      running: this.running,
+      playingField: this.playingField,
+      peopleTeam: this.peopleTeam,
+      iiTeam: this.iiTeam,
+      activePersonPosition: this.activePersonPosition,
+    };
+    this.storage.setItem("state", JSON.stringify(saveData));
   }
 
   load() {

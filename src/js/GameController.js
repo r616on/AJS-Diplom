@@ -24,6 +24,8 @@ export default class GameController {
     this.activePersonPosition = -1;
     this.activePersonTravelArr = [];
     this.activePotentialAttackArr = [];
+    this.level = 1;
+    this.running = "people";
   }
 
   init() {
@@ -41,6 +43,9 @@ export default class GameController {
     this.gamePlay.addCellClickListener(this.characterSelect.bind(this));
     this.gamePlay.addCellClickListener(this.travel.bind(this));
     this.gamePlay.addCellClickListener(this.attack.bind(this));
+
+    this.gamePlay.addSaveGameListener(this.saveGame.bind(this));
+    this.gamePlay.addLoadGameListener(this.loadGame.bind(this));
 
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
@@ -62,8 +67,8 @@ export default class GameController {
   }
   levelUp() {
     ///2level
-    if (this.stateService.level === 1) {
-      this.stateService.level += 1;
+    if (this.level === 1) {
+      this.level += 1;
       ////genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -82,8 +87,8 @@ export default class GameController {
       this.playingField = this.team.people.concat(this.team.ii);
       this.gamePlay.redrawPositions(this.playingField);
       ////3level
-    } else if (this.stateService.level === 2) {
-      this.stateService.level += 1;
+    } else if (this.level === 2) {
+      this.level += 1;
       ////genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -103,8 +108,8 @@ export default class GameController {
       this.playingField = this.team.people.concat(this.team.ii);
       this.gamePlay.redrawPositions(this.playingField);
       ////4 level
-    } else if (this.stateService.level === 3) {
-      this.stateService.level += 1;
+    } else if (this.level === 3) {
+      this.level += 1;
       ////genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -123,7 +128,7 @@ export default class GameController {
       this.gamePlay.drawUi(themes.arctic);
       this.playingField = this.team.people.concat(this.team.ii);
       this.gamePlay.redrawPositions(this.playingField);
-    } else if (this.stateService.level === 4) {
+    } else if (this.level === 4) {
       alert("Win!!");
     }
   }
@@ -142,6 +147,7 @@ export default class GameController {
     //   GamePlay.showError("Ошибка");
     // }
   }
+  //////переписать под лоад
   setActivePerson(index, cellIndex) {
     this.activPositionPlayingField = this.playingField.map(
       (item) => item.position
@@ -312,5 +318,26 @@ export default class GameController {
   }
   noCursorsPointer(cellIndex) {
     this.gamePlay.setCursor(cursors.auto);
+  }
+  saveGame() {
+    this.stateService.level = this.level;
+    this.stateService.running = this.running;
+    this.stateService.playingField = this.playingField;
+    this.stateService.peopleTeam = this.team.people;
+    this.stateService.iiTeam = this.team.ii;
+    this.stateService.activePersonPosition = this.activePersonPosition;
+    this.stateService.save();
+  }
+  loadGame() {
+    const data = this.stateService.load();
+    console.log(data);
+    this.level = data.level;
+    this.running = data.running;
+    this.playingField = data.playingField;
+    this.team.people = data.peopleTeam;
+    this.team.ii = data.iiTeam;
+    this.activePersonPosition = data.setActivePerson;
+    //this.setActivePerson(this.activePersonPosition, this.activePersonPosition);
+    this.gamePlay.redrawPositions(this.playingField);
   }
 }

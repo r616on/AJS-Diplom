@@ -19,11 +19,11 @@ export default class GameController {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
     this.playingField = [];
-    this.activPersonPositionPlayingField = [];
+    this.activPositionPlayingField = [];
     this.activePerson = {};
     this.activePersonPosition = -1;
     this.activePersonTravelArr = [];
-    this.activePersonPotentialAttackArr = [];
+    this.activePotentialAttackArr = [];
   }
 
   init() {
@@ -40,6 +40,8 @@ export default class GameController {
 
     this.gamePlay.addCellClickListener(this.characterSelect.bind(this));
     this.gamePlay.addCellClickListener(this.travel.bind(this));
+    this.gamePlay.addCellClickListener(this.attack.bind(this));
+
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
@@ -68,7 +70,7 @@ export default class GameController {
         }
         i += 1;
         this.gamePlay.selectCell(cellIndex);
-        this.activPersonPositionPlayingField = this.playingField.map(
+        this.activPositionPlayingField = this.playingField.map(
           (item) => item.position
         );
 
@@ -78,7 +80,7 @@ export default class GameController {
           cellIndex,
           this.team.people[index].character.travelRange
         );
-        this.activePersonPotentialAttackArr = genAvailableAttack(
+        this.activePotentialAttackArr = genAvailableAttack(
           cellIndex,
           this.team.people[index].character.attackRange
         );
@@ -87,6 +89,13 @@ export default class GameController {
     // if (i === 0) {
     //   GamePlay.showError("Ошибка");
     // }
+  }
+  setActivePersonClean() {
+    this.activPositionPlayingField = [];
+    this.activePerson = {};
+    this.activePersonPosition = -1;
+    this.activePersonTravelArr = [];
+    this.activePotentialAttackArr = [];
   }
 
   cursorsPointer(cellIndex) {
@@ -104,23 +113,27 @@ export default class GameController {
   travelRadiusAndAttac(cellIndex) {
     const peopleArr = this.team.people.map((person) => person.position);
     const iiArr = this.team.ii.map((person) => person.position);
-    if (!this.activPersonPositionPlayingField.includes(cellIndex)) {
-      if (this.activePersonTravelArr.includes(cellIndex)) {
-        this.gamePlay.selectCell(cellIndex, "green");
-        this.gamePlay.setCursor(cursors.pointer);
-      } else if (peopleArr.includes(cellIndex)) {
-        this.gamePlay.setCursor(cursors.pointer);
-      } else if (!peopleArr.includes(cellIndex)) {
-        this.gamePlay.setCursor(cursors.notallowed);
-      }
+
+    if (
+      !this.activPositionPlayingField.includes(cellIndex) &&
+      this.activePersonTravelArr.includes(cellIndex)
+    ) {
+      this.gamePlay.selectCell(cellIndex, "green");
+      this.gamePlay.setCursor(cursors.pointer);
+    } else if (peopleArr.includes(cellIndex)) {
+      this.gamePlay.setCursor(cursors.pointer);
+    } else if (!peopleArr.includes(cellIndex)) {
+      this.gamePlay.setCursor(cursors.notallowed);
     }
-    if (this.activePersonPotentialAttackArr.includes(cellIndex)) {
-      if (iiArr.includes(cellIndex)) {
-        this.gamePlay.selectCell(cellIndex, "red");
-        this.gamePlay.setCursor(cursors.crosshair);
-      }
+    ///// attak
+    if (
+      this.activePotentialAttackArr.includes(cellIndex) &&
+      iiArr.includes(cellIndex)
+    ) {
+      this.gamePlay.selectCell(cellIndex, "red");
+      this.gamePlay.setCursor(cursors.crosshair);
     } else if (
-      !this.activePersonPotentialAttackArr.includes(cellIndex) &&
+      !this.activePotentialAttackArr.includes(cellIndex) &&
       iiArr.includes(cellIndex)
     ) {
       this.gamePlay.setCursor(cursors.notallowed);
@@ -130,26 +143,62 @@ export default class GameController {
     if (this.activePersonTravelArr.includes(cellIndex)) {
       this.gamePlay.deselectCell(cellIndex);
       // this.gamePlay.setCursor(cursors.auto);
-    } else if (this.activePersonPotentialAttackArr.includes(cellIndex)) {
+    } else if (this.activePotentialAttackArr.includes(cellIndex)) {
       this.gamePlay.deselectCell(cellIndex);
     }
   }
   travel(cellIndex) {
     if (
       this.activePersonPosition > -1 &&
-      !this.activPersonPositionPlayingField.includes(cellIndex) &&
+      !this.activPositionPlayingField.includes(cellIndex) &&
       this.activePersonTravelArr.includes(cellIndex)
     ) {
       this.playingField.forEach((person) => {
         if (person.position === this.activePersonPosition) {
           this.gamePlay.deselectCell(this.activePersonPosition);
           person.position = cellIndex;
+          this.setActivePersonClean();
+          this.gamePlay.deselectCell(cellIndex);
           this.gamePlay.redrawPositions(this.playingField);
         }
       });
     }
   }
-
+  attack(cellIndex) {
+    const iiArr = this.team.ii.map((person) => person.position);
+    if (
+      this.activePersonPosition > -1 &&
+      // iiArr.includes(cellIndex) &&
+      this.activePotentialAttackArr.includes(cellIndex)
+    ) {
+      const damage = this.gamePlay.showDamage(
+        cellIndex,
+        this.activePerson.attack
+      );
+      damage.then((e) => {
+        this.gamePlay.redrawPositions(this.playingField);
+      });
+      this.playingField.forEach((person, index) => {
+        if (person.position === cellIndex) {
+          person.character.health =
+            person.character.health - this.activePerson.attack;
+          ////delete in team and playfield person
+          if (person.character.health < 1) {
+            this.team.ii.splice(
+              this.team.ii.findIndex((item) => item.position === cellIndex),
+              1
+            );
+            this.team.people.splice(
+              this.team.people.findIndex((item) => item.position === cellIndex),
+              1
+            );
+            this.playingField.splice(index, 1);
+            this.gamePlay.deselectCell(cellIndex);
+          }
+        }
+      });
+    }
+  }
   onCellLeave(index) {
     // TODO: react to mouse leave
   }

@@ -10,7 +10,7 @@ import genAvailableTravel from "./genAvailableTravel";
 import genAvailableAttack from "./genAvailableAttack";
 import PositionedCharacter from "./PositionedCharacter";
 
-import { generateTeam, generateStart } from "./generators";
+import { generateTeam, genPositioned } from "./generators";
 import themes from "./themes";
 
 export default class GameController {
@@ -47,11 +47,11 @@ export default class GameController {
   }
   startGame() {
     this.gamePlay.drawUi(themes.prairie);
-    this.team.people = generateStart(
+    this.team.people = genPositioned(
       [new Bowman(1), new Swordsman(1)],
       "people"
     );
-    this.team.ii = generateStart(
+    this.team.ii = genPositioned(
       generateTeam([Daemon, Undead, Vampire], 1, 2),
       "ii"
     );
@@ -64,23 +64,19 @@ export default class GameController {
     ///2level
     if (this.stateService.level === 1) {
       this.stateService.level += 1;
+      ////genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
       });
-      this.team.people.push(
-        generateStart(
-          generateTeam([Swordsman, Bowman, Magician], 1, 1),
-          "people"
-        )
+      this.team.people = genPositioned(
+        generateTeam([Swordsman, Bowman, Magician], 1, 1),
+        "people",
+        this.team.people
       );
-      console.log(this.team.people);
-      this.team.ii.push(
-        generateStart(
-          generateTeam([Daemon, Undead, Vampire], 2, this.team.people.lenght),
-          "ii"
-        )
+      this.team.ii = genPositioned(
+        generateTeam([Daemon, Undead, Vampire], 2, this.team.people.length),
+        "ii"
       );
-      console.log(this.team.ii);
       ///render
       this.gamePlay.drawUi(themes.desert);
       this.playingField = this.team.people.concat(this.team.ii);
@@ -88,20 +84,19 @@ export default class GameController {
       ////3level
     } else if (this.stateService.level === 2) {
       this.stateService.level += 1;
+      ////genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
       });
-      this.team.people.push(
-        generateStart(
-          generateTeam([Swordsman, Bowman, Magician], 2, 2),
-          "people"
-        )
+      this.team.people = genPositioned(
+        generateTeam([Swordsman, Bowman, Magician], 2, 2),
+        "people",
+        this.team.people
       );
-      this.team.ii.push(
-        generateStart(
-          generateTeam([Daemon, Undead, Vampire], 3, this.team.people.lenght),
-          "ii"
-        )
+
+      this.team.ii = genPositioned(
+        generateTeam([Daemon, Undead, Vampire], 3, this.team.people.length),
+        "ii"
       );
       ///render
       this.gamePlay.drawUi(themes.arctic);
@@ -110,20 +105,19 @@ export default class GameController {
       ////4 level
     } else if (this.stateService.level === 3) {
       this.stateService.level += 1;
+      ////genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
       });
-      this.team.people.push(
-        generateStart(
-          generateTeam([Swordsman, Bowman, Magician], 3, 2),
-          "people"
-        )
+      this.team.people = genPositioned(
+        generateTeam([Swordsman, Bowman, Magician], 3, 2),
+        "people",
+        this.team.people
       );
-      this.team.ii.push(
-        generateStart(
-          generateTeam([Daemon, Undead, Vampire], 4, this.team.people.lenght),
-          "ii"
-        )
+
+      this.team.ii = genPositioned(
+        generateTeam([Daemon, Undead, Vampire], 4, this.team.people.length),
+        "ii"
       );
       ///render
       this.gamePlay.drawUi(themes.arctic);

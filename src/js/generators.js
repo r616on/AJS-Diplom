@@ -8,31 +8,31 @@ import PositionedCharacter from "./PositionedCharacter";
  * @param maxLevel max character level
  * @returns Character type children (ex. Magician, Bowman, etc)
  */
+function getRandom(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 export function* characterGenerator(allowedTypes, maxLevel = 1) {
-  // return person
-  const min = Math.ceil(0);
-  const max = Math.floor(allowedTypes.length - 1);
-  const minL = Math.ceil(1);
-  const maxL = Math.floor(maxLevel);
-  for (let item of allowedTypes) {
-    const random = Math.floor(Math.random() * (max - min + 1)) + min;
-    const levelRandom = Math.floor(Math.random() * (maxL - minL + 1)) + minL;
-    yield new allowedTypes[random](levelRandom);
+  for (let i = 0; i < 30; i += 1) {
+    yield new allowedTypes[getRandom(0, allowedTypes.length - 1)](
+      getRandom(1, maxLevel)
+    );
   }
 }
 
-export function generateTeam(allowedTypes, maxLevel, characterCount) {
+export function generateTeam(allowedTypes, maxLevel, amount) {
   const generator = characterGenerator(allowedTypes, maxLevel);
-  const team = [];
-  for (let i = 0; i < characterCount; i += 1) {
-    team.push(generator.next().value);
+  const personArr = [];
+  for (let i = 0; i < amount; i += 1) {
+    personArr.push(generator.next().value);
   }
-  return team;
+  return personArr;
   // TODO: write logic here
 }
 
-export function generateStart(allowedTypes, player) {
+export function genPositioned(allowedTypes, player, oldTeam) {
   // Arr index people and ii
   const boardSize = 8;
   let indexArr = [];
@@ -54,14 +54,14 @@ export function generateStart(allowedTypes, player) {
       }
     }
   }
-
-  //random Set(Index)
+  if (oldTeam) {
+    oldTeam = oldTeam.map((person) => person.character);
+    allowedTypes = allowedTypes.concat(oldTeam);
+  }
   let indexRandomArr = new Set();
-  const min = Math.ceil(0);
-  const max = Math.floor(indexArr.length - 1);
   let i = 0;
   while (i < allowedTypes.length) {
-    const random = Math.floor(Math.random() * (max - min + 1)) + min;
+    const random = getRandom(0, indexArr.length - 1);
     indexRandomArr.add(indexArr[random]);
     if (indexRandomArr.size === allowedTypes.length) {
       i = allowedTypes.length;

@@ -52,44 +52,118 @@ export default class GameController {
       "people"
     );
     this.team.ii = generateStart(
-      generateTeam([Daemon, Undead, Vampire], 1, 2).members,
+      generateTeam([Daemon, Undead, Vampire], 1, 2),
       "ii"
     );
-    const daemon = new PositionedCharacter(new Daemon(), 10);
-    this.team.ii.push(daemon);
+    // const daemon = new PositionedCharacter(new Daemon(), 10);
+    // this.team.ii.push(daemon);
     this.playingField = this.team.people.concat(this.team.ii);
-
     this.gamePlay.redrawPositions(this.playingField);
   }
+  levelUp() {
+    ///2level
+    if (this.stateService.level === 1) {
+      this.stateService.level += 1;
+      this.team.people.forEach((person) => {
+        person.character.levelUp();
+      });
+      this.team.people.push(
+        generateStart(
+          generateTeam([Swordsman, Bowman, Magician], 1, 1),
+          "people"
+        )
+      );
+      console.log(this.team.people);
+      this.team.ii.push(
+        generateStart(
+          generateTeam([Daemon, Undead, Vampire], 2, this.team.people.lenght),
+          "ii"
+        )
+      );
+      console.log(this.team.ii);
+      ///render
+      this.gamePlay.drawUi(themes.desert);
+      this.playingField = this.team.people.concat(this.team.ii);
+      this.gamePlay.redrawPositions(this.playingField);
+      ////3level
+    } else if (this.stateService.level === 2) {
+      this.stateService.level += 1;
+      this.team.people.forEach((person) => {
+        person.character.levelUp();
+      });
+      this.team.people.push(
+        generateStart(
+          generateTeam([Swordsman, Bowman, Magician], 2, 2),
+          "people"
+        )
+      );
+      this.team.ii.push(
+        generateStart(
+          generateTeam([Daemon, Undead, Vampire], 3, this.team.people.lenght),
+          "ii"
+        )
+      );
+      ///render
+      this.gamePlay.drawUi(themes.arctic);
+      this.playingField = this.team.people.concat(this.team.ii);
+      this.gamePlay.redrawPositions(this.playingField);
+      ////4 level
+    } else if (this.stateService.level === 3) {
+      this.stateService.level += 1;
+      this.team.people.forEach((person) => {
+        person.character.levelUp();
+      });
+      this.team.people.push(
+        generateStart(
+          generateTeam([Swordsman, Bowman, Magician], 3, 2),
+          "people"
+        )
+      );
+      this.team.ii.push(
+        generateStart(
+          generateTeam([Daemon, Undead, Vampire], 4, this.team.people.lenght),
+          "ii"
+        )
+      );
+      ///render
+      this.gamePlay.drawUi(themes.arctic);
+      this.playingField = this.team.people.concat(this.team.ii);
+      this.gamePlay.redrawPositions(this.playingField);
+    } else if (this.stateService.level === 4) {
+      alert("Win!!");
+    }
+  }
+
   characterSelect(cellIndex) {
-    let i = 0;
     this.team.people.forEach((person, index) => {
       if (person.position === cellIndex) {
         if (this.activePersonPosition > -1) {
           this.gamePlay.deselectCell(this.activePersonPosition);
         }
-        i += 1;
         this.gamePlay.selectCell(cellIndex);
-        this.activPositionPlayingField = this.playingField.map(
-          (item) => item.position
-        );
-
-        this.activePerson = this.team.people[index].character;
-        this.activePersonPosition = cellIndex;
-        this.activePersonTravelArr = genAvailableTravel(
-          cellIndex,
-          this.team.people[index].character.travelRange
-        );
-        this.activePotentialAttackArr = genAvailableAttack(
-          cellIndex,
-          this.team.people[index].character.attackRange
-        );
+        this.setActivePerson(index, cellIndex);
       }
     });
     // if (i === 0) {
     //   GamePlay.showError("Ошибка");
     // }
   }
+  setActivePerson(index, cellIndex) {
+    this.activPositionPlayingField = this.playingField.map(
+      (item) => item.position
+    );
+    this.activePerson = this.team.people[index].character;
+    this.activePersonPosition = cellIndex;
+    this.activePersonTravelArr = genAvailableTravel(
+      cellIndex,
+      this.team.people[index].character.travelRange
+    );
+    this.activePotentialAttackArr = genAvailableAttack(
+      cellIndex,
+      this.team.people[index].character.attackRange
+    );
+  }
+
   setActivePersonClean() {
     this.activPositionPlayingField = [];
     this.activePerson = {};
@@ -184,16 +258,33 @@ export default class GameController {
             person.character.health - this.activePerson.attack;
           ////delete in team and playfield person
           if (person.character.health < 1) {
-            this.team.ii.splice(
-              this.team.ii.findIndex((item) => item.position === cellIndex),
-              1
-            );
-            this.team.people.splice(
-              this.team.people.findIndex((item) => item.position === cellIndex),
-              1
-            );
+            if (
+              this.team.ii.findIndex((item) => item.position === cellIndex) > -1
+            ) {
+              this.team.ii.splice(
+                this.team.ii.findIndex((item) => item.position === cellIndex),
+                1
+              );
+            } else if (
+              this.team.people.findIndex(
+                (item) => item.position === cellIndex
+              ) > -1
+            ) {
+              this.team.people.splice(
+                this.team.people.findIndex(
+                  (item) => item.position === cellIndex
+                ),
+                1
+              );
+            }
             this.playingField.splice(index, 1);
+            this.gamePlay.deselectCell(this.activePersonPosition);
             this.gamePlay.deselectCell(cellIndex);
+          }
+          //////chek team
+
+          if (this.team.ii.length === 0) {
+            this.levelUp();
           }
         }
       });

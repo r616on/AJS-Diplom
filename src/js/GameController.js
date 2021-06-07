@@ -24,7 +24,7 @@ export default class GameController {
     this.activePersonTravelArr = [];
     this.activePotentialAttackArr = [];
     this.level = 1;
-    this.running = "people";
+    this.runningPeople = true;
   }
 
   init() {
@@ -40,12 +40,18 @@ export default class GameController {
     this.gamePlay.addCellClickListener(this.personSelect.bind(this));
     this.gamePlay.addCellClickListener(this.travel.bind(this));
     this.gamePlay.addCellClickListener(this.attack.bind(this));
+    this.gamePlay.addCellClickListener(this.turnOrder.bind(this));
 
     this.gamePlay.addSaveGameListener(this.saveGame.bind(this));
     this.gamePlay.addLoadGameListener(this.loadGame.bind(this));
 
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
+  }
+  turnOrder() {
+    if (!this.runningPeople) {
+      this.iiRunning();
+    }
   }
   startGame() {
     this.gamePlay.drawUi(themes.prairie);
@@ -251,7 +257,7 @@ export default class GameController {
       this.gamePlay.deselectCell(cellIndex);
     }
   }
-  travel(cellIndex) {
+  travel(cellIndex, player = "people") {
     const personPositionArr = this.playingField.map(
       (person) => person.position
     );
@@ -269,13 +275,39 @@ export default class GameController {
           this.gamePlay.redrawPositions(this.playingField);
         }
       });
+      if (player === "ii") {
+        this.runningPeople = true;
+      } else {
+        this.runningPeople = false;
+      }
     }
   }
-  attack(cellIndex) {
-    const iiArr = this.team.ii.map((person) => person.position);
+  attack(cellIndex, player = "people") {
+    let rivalPosit = [];
+    ///Create arr rival
+    if (player === "people") {
+      rivalPosit = this.playingField
+        .filter(
+          (person) =>
+            person.character.type === "daemon" ||
+            person.character.type === "undead" ||
+            person.character.type === "vampire"
+        )
+        .map((person) => person.position);
+    } else if (player === "ii") {
+      rivalPosit = this.playingField
+        .filter(
+          (person) =>
+            person.character.type === "swordsman" ||
+            person.character.type === "bowman" ||
+            person.character.type === "magician"
+        )
+        .map((person) => person.position);
+    }
+    ///check  avalible attack and attack animation
     if (
+      rivalPosit.includes(cellIndex) &&
       this.activePersonPosition > -1 &&
-      // iiArr.includes(cellIndex) &&
       this.activePotentialAttackArr.includes(cellIndex)
     ) {
       const damage = this.gamePlay.showDamage(
@@ -283,41 +315,49 @@ export default class GameController {
         this.activePerson.attack
       );
       damage.then((e) => {
+        if (player === "ii") {
+          this.runningPeople = true;
+        } else {
+          this.runningPeople = false;
+        }
+
         this.gamePlay.redrawPositions(this.playingField);
       });
+      /// attack and check team
       this.playingField.forEach((person, index) => {
         if (person.position === cellIndex) {
           person.character.health =
             person.character.health - this.activePerson.attack;
-          ////delete in team and playfield person
+
           if (person.character.health < 1) {
-            if (
-              this.team.ii.findIndex((item) => item.position === cellIndex) > -1
-            ) {
-              this.team.ii.splice(
-                this.team.ii.findIndex((item) => item.position === cellIndex),
-                1
-              );
-            } else if (
-              this.team.people.findIndex(
-                (item) => item.position === cellIndex
-              ) > -1
-            ) {
-              this.team.people.splice(
-                this.team.people.findIndex(
-                  (item) => item.position === cellIndex
-                ),
-                1
-              );
-            }
+            ////delete in team and playfield person
             this.playingField.splice(index, 1);
             this.gamePlay.deselectCell(this.activePersonPosition);
             this.gamePlay.deselectCell(cellIndex);
           }
-          //////chek team
 
-          if (this.team.ii.length === 0) {
+          //////chek team
+          let iilPositEnd = this.playingField
+            .filter(
+              (person) =>
+                person.character.type === "daemon" ||
+                person.character.type === "undead" ||
+                person.character.type === "vampire"
+            )
+            .map((person) => person.position);
+          let peoplePositEnd = this.playingField
+            .filter(
+              (person) =>
+                person.character.type === "swordsman" ||
+                person.character.type === "bowman" ||
+                person.character.type === "magician"
+            )
+            .map((person) => person.position);
+
+          if (iilPositEnd.length === 0) {
             this.levelUp();
+          } else if (peoplePositEnd.length === 0) {
+            alert("End");
           }
         }
       });
@@ -372,5 +412,68 @@ export default class GameController {
     this.activePersonPosition = data.setActivePerson;
     //this.setActivePerson(this.activePersonPosition, this.activePersonPosition);
     this.gamePlay.redrawPositions(this.playingField);
+  }
+  iiRunning() {
+    function getRandom(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    const iiPersonArr = this.playingField
+      .filter(
+        (person) =>
+          person.character.type === "daemon" ||
+          person.character.type === "undead" ||
+          person.character.type === "vampire"
+      )
+      .map((person) => person.position);
+
+    this.setActivePerson(iiPersonArr[getRandom(0, iiPersonArr.length - 1)]);
+    const peoplePersonArrPos = this.playingField
+      .filter(
+        (person) =>
+          person.character.type === "swordsman" ||
+          person.character.type === "bowman" ||
+          person.character.type === "magician"
+      )
+      .map((person) => person.position);
+    let i = 0;
+    peoplePersonArrPos.forEach((item) => {
+      if (this.activePotentialAttackArr.includes(item)) {
+        this.attack(item, "ii");
+        i += 1;
+      }
+    });
+    if (i === 0) {
+      this.travel(this.activePersonTravelArr[1], "ii");
+    }
+
+    //
+
+    //     //       // .map((person) => person.position);
+    //            iiPersonArr.forEach(index=>{
+    //      for(let i=1; i<5;i+=1){
+    //             let attacArr=genAvailableAttack(index.position,i);
+
+    //           }
+    //            })
+    //  function* generateIndxPeople(arr) {
+    //    for (let i = 0; i < arr.length; i += 1) {
+    //      yield arr[i];
+    //    }
+    //  }
+    //    let genPeople = generateIndxPeople(peoplePersonArrPos);
+    //    console.log(genPeople.next());
+    //    console.log(genPeople.next());
+    //    console.log(genPeople.next());
+    //     //       iiPersonArr.forEach(person=>{
+    //     //          if(genAvailableAttack(person.position,person.character.attackRange))
+    //        })
+    // peoplePersonArrPos.forEach(index=>{
+    //   if(genAvailableAttack(person.position,person.character.attackRange).includes(index)){
+
+    //   }
+    // })
   }
 }

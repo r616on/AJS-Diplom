@@ -1,5 +1,5 @@
-import Team from "./Team";
-import PositionedCharacter from "./PositionedCharacter";
+import Team from './Team';
+import PositionedCharacter from './PositionedCharacter';
 
 /**
  * Generates random characters
@@ -17,7 +17,7 @@ function getRandom(min, max) {
 export function* characterGenerator(allowedTypes, maxLevel = 1) {
   for (let i = 0; i < 30; i += 1) {
     yield new allowedTypes[getRandom(0, allowedTypes.length - 1)](
-      getRandom(1, maxLevel)
+      getRandom(1, maxLevel),
     );
   }
 }
@@ -35,8 +35,8 @@ export function generateTeam(allowedTypes, maxLevel, amount) {
 export function genPositioned(allowedTypes, player, oldTeam) {
   // Arr index people and ii
   const boardSize = 8;
-  let indexArr = [];
-  if (player === "people") {
+  const indexArr = [];
+  if (player === 'people') {
     for (let i = 0; i < boardSize * boardSize; i += 1) {
       if (i % boardSize === 0) {
         indexArr.push(i);
@@ -45,7 +45,7 @@ export function genPositioned(allowedTypes, player, oldTeam) {
       }
     }
   }
-  if (player === "ii") {
+  if (player === 'ii') {
     for (let i = 0; i < boardSize * boardSize; i += 1) {
       if ((i + 1) % boardSize === 0) {
         indexArr.push(i);
@@ -70,10 +70,10 @@ export function genPositioned(allowedTypes, player, oldTeam) {
   indexRandomArr = [...indexRandomArr];
 
   // new PositionedCharacterArr
-  let PositionedCharacterArr = [];
+  const PositionedCharacterArr = [];
   for (let i = 0; i < allowedTypes.length; i += 1) {
     PositionedCharacterArr.push(
-      new PositionedCharacter(allowedTypes[i], indexRandomArr[i])
+      new PositionedCharacter(allowedTypes[i], indexRandomArr[i]),
     );
   }
 

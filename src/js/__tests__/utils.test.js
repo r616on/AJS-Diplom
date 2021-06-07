@@ -16,5 +16,5 @@ test.each(data)(
   'Test decorative border frame function calcTileType index=%s',
   (index, bS, expected) => {
     expect(calcTileType(index, bS)).toBe(expected);
-  }
+  },
 );

@@ -1,5 +1,5 @@
-import genAvailableAttack from "../genAvailableAttack";
-import genAvailableTravel from "../genAvailableTravel";
+import genAvailableAttack from '../genAvailableAttack';
+import genAvailableTravel from '../genAvailableTravel';
 
 const data = [
   [0, 2, [1, 2, 8, 9, 10, 16, 17, 18]],
@@ -70,7 +70,7 @@ const data = [
 test.each(data)(
   "Test available cells func 'genAvailableAttack' Position = %s , level = %s ",
   (index, cells, expected) => {
-    let dataExp = Array.from(
+    const dataExp = Array.from(
       new Set(
         genAvailableTravel(index, cells)
           .concat(expected)
@@ -78,9 +78,9 @@ test.each(data)(
             if (a > b) return 1;
             if (a == b) return 0;
             if (a < b) return -1;
-          })
-      )
+          }),
+      ),
     );
     expect(genAvailableAttack(index, cells)).toEqual(dataExp);
-  }
+  },
 );

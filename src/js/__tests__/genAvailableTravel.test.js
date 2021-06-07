@@ -1,4 +1,4 @@
-import genAvailableTravel from "../genAvailableTravel";
+import genAvailableTravel from '../genAvailableTravel';
 
 // test("the shopping list has milk on it", () => {
 //   expect(shoppingList).toContain("milk");
@@ -70,5 +70,5 @@ test.each(data)(
       if (a < b) return -1;
     });
     expect(genAvailableTravel(index, cells)).toEqual(expected);
-  }
+  },
 );

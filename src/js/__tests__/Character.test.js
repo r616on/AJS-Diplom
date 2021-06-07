@@ -1,8 +1,8 @@
-import Character from "../Character";
-//import Bowerman from "../person/Bowerman";
+import Character from '../Character';
+// import Bowerman from "../person/Bowerman";
 
-test("Test NO Character", () => {
-  expect(() => new Character(1)).toThrow(Error("No Character"));
+test('Test NO Character', () => {
+  expect(() => new Character(1)).toThrow(Error('No Character'));
 });
 // test("test levelUP based Bowerman", () => {
 //   const data = { attack: 30, defence: 30, level: 2 };

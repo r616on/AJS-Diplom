@@ -2,7 +2,7 @@ export default class GameStateService {
   constructor(storage) {
     this.storage = storage;
     this.level = 1;
-    this.running = "";
+    this.running = '';
     this.playingField = [];
     this.peopleTeam = [];
     this.iiTeam = [];
@@ -19,14 +19,14 @@ export default class GameStateService {
       iiTeam: this.iiTeam,
       activePersonPosition: this.activePersonPosition,
     };
-    this.storage.setItem("state", JSON.stringify(saveData));
+    this.storage.setItem('state', JSON.stringify(saveData));
   }
 
   load() {
     try {
-      return JSON.parse(this.storage.getItem("state"));
+      return JSON.parse(this.storage.getItem('state'));
     } catch (e) {
-      throw new Error("Invalid state");
+      throw new Error('Invalid state');
     }
   }
 }

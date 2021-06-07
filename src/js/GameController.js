@@ -19,7 +19,6 @@ export default class GameController {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
     this.playingField = [];
-    this.activPositionPlayingField = [];
     this.activePerson = {};
     this.activePersonPosition = -1;
     this.activePersonTravelArr = [];
@@ -33,14 +32,12 @@ export default class GameController {
     this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
     this.gamePlay.addCellEnterListener(this.cursorsPointer.bind(this));
     this.gamePlay.addCellEnterListener(this.travelRadiusAndAttac.bind(this));
-    //this.gamePlay.addCellEnterListener(this.attacRadius.bind(this));
 
     this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
     this.gamePlay.addCellLeaveListener(this.noCursorsPointer.bind(this));
     this.gamePlay.addCellLeaveListener(this.noTravelRadiusAndAttac.bind(this));
-    //this.gamePlay.addCellLeaveListener(this.noAttacRadius.bind(this));
 
-    this.gamePlay.addCellClickListener(this.characterSelect.bind(this));
+    this.gamePlay.addCellClickListener(this.personSelect.bind(this));
     this.gamePlay.addCellClickListener(this.travel.bind(this));
     this.gamePlay.addCellClickListener(this.attack.bind(this));
 
@@ -133,38 +130,46 @@ export default class GameController {
     }
   }
 
-  characterSelect(cellIndex) {
-    this.team.people.forEach((person, index) => {
+  personSelect(cellIndex) {
+    this.playingField.forEach((person) => {
       if (person.position === cellIndex) {
-        if (this.activePersonPosition > -1) {
-          this.gamePlay.deselectCell(this.activePersonPosition);
+        if (
+          person.character.type === "swordsman" ||
+          person.character.type === "bowman" ||
+          person.character.type === "magician"
+        ) {
+          if (this.activePersonPosition > -1) {
+            this.setActivePersonClean();
+          }
+          this.setActivePerson(cellIndex);
         }
-        this.gamePlay.selectCell(cellIndex);
-        this.setActivePerson(index, cellIndex);
       }
     });
-    // if (i === 0) {
-    //   GamePlay.showError("Ошибка");
-    // }
   }
-  //////переписать под лоад
-  setActivePerson(index, cellIndex) {
-    this.activPositionPlayingField = this.playingField.map(
-      (item) => item.position
-    );
-    this.activePerson = this.team.people[index].character;
-    this.activePersonPosition = cellIndex;
-    this.activePersonTravelArr = genAvailableTravel(
-      cellIndex,
-      this.team.people[index].character.travelRange
-    );
-    this.activePotentialAttackArr = genAvailableAttack(
-      cellIndex,
-      this.team.people[index].character.attackRange
-    );
+  setActivePerson(cellIndex) {
+    //////SELect
+    this.gamePlay.selectCell(cellIndex);
+    this.playingField.forEach((person) => {
+      if (person.position === cellIndex) {
+        ///Set Active Persone
+        this.activePerson = person.character;
+        this.activePersonPosition = cellIndex;
+        this.activePersonTravelArr = genAvailableTravel(
+          cellIndex,
+          person.character.travelRange
+        );
+        this.activePotentialAttackArr = genAvailableAttack(
+          cellIndex,
+          person.character.attackRange
+        );
+      }
+    });
   }
 
   setActivePersonClean() {
+    ///deselect
+    this.gamePlay.deselectCell(this.activePersonPosition);
+    /// Clear Activ Person
     this.activPositionPlayingField = [];
     this.activePerson = {};
     this.activePersonPosition = -1;
@@ -173,44 +178,69 @@ export default class GameController {
   }
 
   cursorsPointer(cellIndex) {
-    this.team.people.forEach((person) => {
+    this.playingField.forEach((person) => {
       if (person.position === cellIndex) {
         if (
-          this.activePersonPosition > -1 &&
-          !(this.activePersonPosition === cellIndex)
+          person.character.type === "swordsman" ||
+          person.character.type === "bowman" ||
+          person.character.type === "magician"
         ) {
           this.gamePlay.setCursor(cursors.pointer);
         }
       }
     });
+
+    // this.team.people.forEach((person) => {
+    //   if (person.position === cellIndex) {
+    //     if (
+    //       this.activePersonPosition > -1 &&
+    //       !(this.activePersonPosition === cellIndex)
+    //     ) {
+    //       this.gamePlay.setCursor(cursors.pointer);
+    //     }
+    //   }
+    // });
   }
   travelRadiusAndAttac(cellIndex) {
-    const peopleArr = this.team.people.map((person) => person.position);
-    const iiArr = this.team.ii.map((person) => person.position);
-
+    const peopleArrPos = this.playingField
+      .filter(
+        (person) =>
+          person.character.type === "swordsman" ||
+          person.character.type === "bowman" ||
+          person.character.type === "magician"
+      )
+      .map((person) => person.position);
+    const personPositionArr = this.playingField.map(
+      (person) => person.position
+    );
     if (
-      !this.activPositionPlayingField.includes(cellIndex) &&
+      !personPositionArr.includes(cellIndex) &&
       this.activePersonTravelArr.includes(cellIndex)
     ) {
       this.gamePlay.selectCell(cellIndex, "green");
       this.gamePlay.setCursor(cursors.pointer);
-    } else if (peopleArr.includes(cellIndex)) {
-      this.gamePlay.setCursor(cursors.pointer);
-    } else if (!peopleArr.includes(cellIndex)) {
+    } else if (
+      !peopleArrPos.includes(cellIndex) &&
+      !this.activePersonTravelArr.includes(cellIndex)
+    ) {
       this.gamePlay.setCursor(cursors.notallowed);
     }
-    ///// attak
     if (
-      this.activePotentialAttackArr.includes(cellIndex) &&
-      iiArr.includes(cellIndex)
+      personPositionArr.includes(cellIndex) &&
+      this.activePotentialAttackArr.includes(cellIndex)
     ) {
-      this.gamePlay.selectCell(cellIndex, "red");
-      this.gamePlay.setCursor(cursors.crosshair);
-    } else if (
-      !this.activePotentialAttackArr.includes(cellIndex) &&
-      iiArr.includes(cellIndex)
-    ) {
-      this.gamePlay.setCursor(cursors.notallowed);
+      this.playingField.forEach((person) => {
+        if (person.position === cellIndex) {
+          if (
+            person.character.type === "daemon" ||
+            person.character.type === "undead" ||
+            person.character.type === "vampire"
+          ) {
+            this.gamePlay.selectCell(cellIndex, "red");
+            this.gamePlay.setCursor(cursors.crosshair);
+          }
+        }
+      });
     }
   }
   noTravelRadiusAndAttac(cellIndex) {
@@ -222,9 +252,12 @@ export default class GameController {
     }
   }
   travel(cellIndex) {
+    const personPositionArr = this.playingField.map(
+      (person) => person.position
+    );
     if (
       this.activePersonPosition > -1 &&
-      !this.activPositionPlayingField.includes(cellIndex) &&
+      !personPositionArr.includes(cellIndex) &&
       this.activePersonTravelArr.includes(cellIndex)
     ) {
       this.playingField.forEach((person) => {

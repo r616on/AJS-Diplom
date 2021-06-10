@@ -148,6 +148,7 @@ export default class GameController {
           person.character.type === "magician"
         ) {
           if (this.activePersonPosition > -1) {
+            // this.gamePlay.deselectCell(this.activePersonPosition);
             this.setActivePersonClean();
           }
           this.setActivePerson(cellIndex);
@@ -159,6 +160,7 @@ export default class GameController {
   setActivePerson(cellIndex) {
     /// ///SELect
     this.gamePlay.selectCell(cellIndex);
+
     this.playingField.forEach((person) => {
       if (person.position === cellIndex) {
         /// Set Active Persone
@@ -177,12 +179,8 @@ export default class GameController {
   }
 
   setActivePersonClean() {
-    /// deselect
-    if (this.activePersonPosition > -1) {
-      this.gamePlay.deselectCell(this.activePersonPosition);
-    }
+    this.gamePlay.deselectCell(this.activePersonPosition);
     /// Clear Activ Person
-    this.activPositionPlayingField = [];
     this.activePerson = {};
     this.activePersonPosition = -1;
     this.activePersonTravelArr = [];
@@ -275,22 +273,48 @@ export default class GameController {
       !personPositionArr.includes(cellIndex) &&
       this.activePersonTravelArr.includes(cellIndex)
     ) {
-      this.playingField.forEach((person) => {
+      const index = this.playingField.findIndex((person) => {
         if (person.position === this.activePersonPosition) {
-          this.gamePlay.deselectCell(this.activePersonPosition);
-          person.position = cellIndex;
-          this.gamePlay.deselectCell(cellIndex);
-          this.gamePlay.redrawPositions(this.playingField);
-          this.setActivePersonClean(cellIndex);
-          if (player === "ii") {
-            this.runningPeople = true;
-          } else {
-            this.runningPeople = false;
-          }
-          this.turnOrder();
+          return true;
         }
       });
+      this.playingField[index].position = cellIndex;
+      this.setActivePersonClean();
+      //this.gamePlay.deselectCell(this.activePersonPosition);
+      this.gamePlay.deselectCell(cellIndex);
+      this.gamePlay.redrawPositions(this.playingField);
+      if (player === "ii") {
+        this.runningPeople = true;
+      } else {
+        this.runningPeople = false;
+      }
+      this.turnOrder();
     }
+
+    // const personPositionArr = this.playingField.map(
+    //   (person) => person.position
+    // );
+    // if (
+    //   this.activePersonPosition > -1 &&
+    //   !personPositionArr.includes(cellIndex) &&
+    //   this.activePersonTravelArr.includes(cellIndex)
+    // ) {
+    //   this.playingField.forEach((person) => {
+    //     if (person.position === this.activePersonPosition) {
+    //       this.gamePlay.deselectCell(this.activePersonPosition);
+    //       person.position = cellIndex;
+    //       this.gamePlay.deselectCell(cellIndex);
+    //       this.gamePlay.redrawPositions(this.playingField);
+    //       this.setActivePersonClean(cellIndex);
+    //       if (player === "ii") {
+    //         this.runningPeople = true;
+    //       } else {
+    //         this.runningPeople = false;
+    //       }
+    //       this.turnOrder();
+    //     }
+    //   });
+    // }
   }
 
   attack(cellIndex, player = "people") {
@@ -455,8 +479,10 @@ export default class GameController {
           person.character.type === "magician"
       )
       .map((person) => person.position);
+    const allPerson = this.playingField.map((person) => person.position);
 
-    this.setActivePerson(iiPersonArr[getRandom(0, iiPersonArr.length - 1)]);
+    const activeRandom = iiPersonArr[getRandom(0, iiPersonArr.length - 1)];
+    this.setActivePerson(activeRandom);
     let i = 0;
     peoplePersonArrPos.forEach((item) => {
       if (i === 0) {
@@ -466,8 +492,13 @@ export default class GameController {
         }
       }
     });
-    if (i === 0) {
-      this.travel(this.activePersonTravelArr[1], "ii");
+
+    if (i === 0 && !allPerson.includes(this.activePersonTravelArr[2])) {
+      this.travel(this.activePersonTravelArr[2], "ii");
+    } else if (i === 0 && !allPerson.includes(this.activePersonTravelArr[3])) {
+      this.travel(this.activePersonTravelArr[3], "ii");
+    } else if (i === 0 && !allPerson.includes(this.activePersonTravelArr[4])) {
+      this.travel(this.activePersonTravelArr[4], "ii");
     }
 
     //

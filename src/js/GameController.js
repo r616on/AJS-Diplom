@@ -265,6 +265,7 @@ export default class GameController {
   }
 
   travel(cellIndex, player = "people") {
+    ////norm
     const personPositionArr = this.playingField.map(
       (person) => person.position
     );
@@ -345,37 +346,39 @@ export default class GameController {
       this.activePersonPosition > -1 &&
       this.activePotentialAttackArr.includes(cellIndex)
     ) {
-      const damage = this.gamePlay.showDamage(
-        cellIndex,
-        this.activePerson.attack
+      // Damage calculation
+      ///Lag 2lev not an integer
+      const damage = Math.trunc(
+        Math.max(
+          this.activePerson.attack -
+            this.playingField.find((person) => person.position === cellIndex)
+              .character.defence,
+          this.activePerson.attack * 0.1
+        )
       );
-      damage.then(() => {
-        if (player === "ii") {
-          this.runningPeople = true;
-        } else {
-          this.runningPeople = false;
-        }
+      // Damage run
+      const damagePromise = this.gamePlay.showDamage(cellIndex, damage);
+      damagePromise.then(() => {
         //Attack dammag
         this.playingField.forEach((person, index) => {
           if (person.position === cellIndex) {
-            console.log(person);
-            person.character.health =
-              person.character.health - this.activePerson.attack;
+            //console.log(person);
+            person.character.health = person.character.health - damage;
 
             if (person.character.health < 1) {
+              this.setActivePersonClean();
+              this.gamePlay.deselectCell(cellIndex);
               /// /delete in team and playfield person
               this.playingField.splice(index, 1);
-              //this.gamePlay.deselectCell(this.activePersonPosition);
-              this.gamePlay.deselectCell(cellIndex);
+
               this.gamePlay.redrawPositions(this.playingField);
+            } else {
+              this.gamePlay.deselectCell(cellIndex);
               this.setActivePersonClean();
+              this.gamePlay.redrawPositions(this.playingField);
             }
-            this.gamePlay.deselectCell(cellIndex);
-            this.gamePlay.redrawPositions(this.playingField);
-            this.setActivePersonClean();
           }
         });
-        // this.gamePlay.deselectCell(this.activePersonPosition);
 
         const iilPositEnd = this.playingField
           .filter(
@@ -399,7 +402,12 @@ export default class GameController {
         } else if (peoplePositEnd.length === 0) {
           alert("End");
         }
-        //this.turnOrder();
+        if (player === "ii") {
+          this.runningPeople = true;
+        } else {
+          this.runningPeople = false;
+        }
+        this.turnOrder();
       });
     }
   }

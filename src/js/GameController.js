@@ -25,28 +25,41 @@ export default class GameController {
     this.activePotentialAttackArr = [];
     this.level = 1;
     this.runningPeople = true;
+
+    this.prizeScore = 0;
+    this.finishScore = 0;
   }
 
   init() {
-    this.startGame();
+    //levelInfo.innerText = `Level:2`;
+
+    // localStorage.clear();
+    // console.log(this.stateService.storage.getItem("state"));
+    if (this.stateService.storage.getItem("state")) {
+      this.loadGame();
+    } else {
+      this.startGame();
+    }
+    // this.startGame();
     this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
+    this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
+
+    this.gamePlay.addSaveGameListener(this.saveGame.bind(this));
+    this.gamePlay.addLoadGameListener(this.loadGame.bind(this));
+    this.gamePlay.addNewGameListener(this.startGame.bind(this));
+    // TODO: add event listeners to gamePlay events
+    // TODO: load saved stated from stateService
+  }
+  initListener() {
     this.gamePlay.addCellEnterListener(this.cursorsPointer.bind(this));
     this.gamePlay.addCellEnterListener(this.travelRadiusAndAttac.bind(this));
 
-    this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
     this.gamePlay.addCellLeaveListener(this.noCursorsPointer.bind(this));
     this.gamePlay.addCellLeaveListener(this.noTravelRadiusAndAttac.bind(this));
 
     this.gamePlay.addCellClickListener(this.personSelect.bind(this));
     this.gamePlay.addCellClickListener(this.travel.bind(this));
     this.gamePlay.addCellClickListener(this.attack.bind(this));
-    // this.gamePlay.addCellClickListener(this.turnOrder.bind(this));
-
-    this.gamePlay.addSaveGameListener(this.saveGame.bind(this));
-    this.gamePlay.addLoadGameListener(this.loadGame.bind(this));
-
-    // TODO: add event listeners to gamePlay events
-    // TODO: load saved stated from stateService
   }
 
   turnOrder() {
@@ -56,6 +69,27 @@ export default class GameController {
   }
 
   startGame() {
+    this.initListener();
+    this.level = 1;
+    this.playingField = [];
+    this.activePerson = {};
+    this.activePersonPosition = -1;
+    this.activePersonTravelArr = [];
+    this.activePotentialAttackArr = [];
+    this.prizeScore = 0;
+    // ///
+
+    // this.gamePlay.addCellEnterListener(this.cursorsPointer.bind(this));
+    // this.gamePlay.addCellEnterListener(this.travelRadiusAndAttac.bind(this));
+
+    // this.gamePlay.addCellLeaveListener(this.noCursorsPointer.bind(this));
+    // this.gamePlay.addCellLeaveListener(this.noTravelRadiusAndAttac.bind(this));
+
+    // this.gamePlay.addCellClickListener(this.personSelect.bind(this));
+    // this.gamePlay.addCellClickListener(this.travel.bind(this));
+    // this.gamePlay.addCellClickListener(this.attack.bind(this));
+    // // //
+
     this.gamePlay.drawUi(themes.prairie);
     this.team.people = genPositioned(
       [new Bowman(1), new Swordsman(1)],
@@ -72,9 +106,19 @@ export default class GameController {
   }
 
   levelUp() {
+    function activeInfo() {
+      const levelInfo = this.gamePlay.level;
+      const prizeScoreInfo = this.gamePlay.prizeScore;
+      const finishScoreInfo = this.gamePlay.finishScore;
+      levelInfo.innerText = `Level:${this.level}`;
+      prizeScoreInfo.innerText = `Текущий счет:${this.prizeScoreInfo}`;
+      finishScoreInfo.innerText = `Общий счет:${this.finishScoreInfo}`;
+    }
+
     /// 2level
     if (this.level === 1) {
       this.level += 1;
+      activeInfo();
       /// /genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -95,6 +139,7 @@ export default class GameController {
       /// /3level
     } else if (this.level === 2) {
       this.level += 1;
+      activeInfo();
       /// /genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -116,6 +161,7 @@ export default class GameController {
       /// /4 level
     } else if (this.level === 3) {
       this.level += 1;
+      activeInfo();
       /// /genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -134,7 +180,16 @@ export default class GameController {
       this.gamePlay.drawUi(themes.arctic);
       this.playingField = this.team.people.concat(this.team.ii);
       this.gamePlay.redrawPositions(this.playingField);
+      ///Finish
     } else if (this.level === 4) {
+      if (this.prizeScore > this.finishScore) {
+        this.finishScore = this.prizeScore;
+      }
+      this.gamePlay.cellClickListeners = [];
+      this.gamePlay.cellEnterListeners = [];
+      this.gamePlay.cellLeaveListeners = [];
+      this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
+      this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
       alert("Win!!");
     }
   }
@@ -151,10 +206,14 @@ export default class GameController {
             // this.gamePlay.deselectCell(this.activePersonPosition);
             this.setActivePersonClean();
           }
+
           this.setActivePerson(cellIndex);
         }
       }
     });
+    if (this.activePersonPosition === -1) {
+      GamePlay.showError("не выбран персонаж");
+    }
   }
 
   setActivePerson(cellIndex) {
@@ -290,32 +349,14 @@ export default class GameController {
         this.runningPeople = false;
       }
       this.turnOrder();
+    } else if (
+      this.activePersonPosition > -1 &&
+      !personPositionArr.includes(cellIndex) &&
+      !this.activePersonTravelArr.includes(cellIndex) &&
+      !this.activePotentialAttackArr.includes(cellIndex)
+    ) {
+      GamePlay.showError("нельзя пойти и атаковать");
     }
-
-    // const personPositionArr = this.playingField.map(
-    //   (person) => person.position
-    // );
-    // if (
-    //   this.activePersonPosition > -1 &&
-    //   !personPositionArr.includes(cellIndex) &&
-    //   this.activePersonTravelArr.includes(cellIndex)
-    // ) {
-    //   this.playingField.forEach((person) => {
-    //     if (person.position === this.activePersonPosition) {
-    //       this.gamePlay.deselectCell(this.activePersonPosition);
-    //       person.position = cellIndex;
-    //       this.gamePlay.deselectCell(cellIndex);
-    //       this.gamePlay.redrawPositions(this.playingField);
-    //       this.setActivePersonClean(cellIndex);
-    //       if (player === "ii") {
-    //         this.runningPeople = true;
-    //       } else {
-    //         this.runningPeople = false;
-    //       }
-    //       this.turnOrder();
-    //     }
-    //   });
-    // }
   }
 
   attack(cellIndex, player = "people") {
@@ -353,7 +394,7 @@ export default class GameController {
           this.activePerson.attack -
             this.playingField.find((person) => person.position === cellIndex)
               .character.defence,
-          this.activePerson.attack * 0.6
+          this.activePerson.attack * 0.9
         )
       );
       // Damage run
@@ -380,27 +421,32 @@ export default class GameController {
           }
         });
 
-        const iilPositEnd = this.playingField
-          .filter(
-            (person) =>
-              person.character.type === "daemon" ||
-              person.character.type === "undead" ||
-              person.character.type === "vampire"
-          )
-          .map((person) => person.position);
-        const peoplePositEnd = this.playingField
-          .filter(
-            (person) =>
-              person.character.type === "swordsman" ||
-              person.character.type === "bowman" ||
-              person.character.type === "magician"
-          )
-          .map((person) => person.position);
+        const iiEnd = this.playingField.filter(
+          (person) =>
+            person.character.type === "daemon" ||
+            person.character.type === "undead" ||
+            person.character.type === "vampire"
+        );
+        const peopleEnd = this.playingField.filter(
+          (person) =>
+            person.character.type === "swordsman" ||
+            person.character.type === "bowman" ||
+            person.character.type === "magician"
+        );
 
-        if (iilPositEnd.length === 0) {
+        if (iiEnd.length === 0) {
+          this.prizeScore += peopleEnd.reduce(
+            (sum, person) => sum + person.character.health,
+            0
+          );
           this.levelUp();
-        } else if (peoplePositEnd.length === 0) {
-          alert("End");
+        } else if (peopleEnd.length === 0) {
+          this.gamePlay.cellClickListeners = [];
+          this.gamePlay.cellEnterListeners = [];
+          this.gamePlay.cellLeaveListeners = [];
+          this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
+          this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
+          alert("You Louse!!");
         }
         if (player === "ii") {
           this.runningPeople = true;
@@ -448,15 +494,31 @@ export default class GameController {
     this.stateService.level = this.level;
     this.stateService.runningPeople = this.runningPeople;
     this.stateService.playingField = this.playingField;
+    //Statistic
+    this.stateService.finishScore = this.finishScore;
+    this.stateService.prizeScore = this.prizeScore;
     this.stateService.save();
+    alert("game saved");
   }
 
   loadGame() {
+    this.initListener();
     const data = this.stateService.load();
     this.level = data.level;
     this.runningPeople = data.runningPeople;
     this.playingField = data.playingField;
+    this.finishScore = data.finishScore;
+    this.prizeScore = data.prizeScore;
     // this.setActivePerson(this.activePersonPosition);
+    if (this.level === 1) {
+      this.gamePlay.drawUi(themes.prairie);
+    } else if (this.level === 2) {
+      this.gamePlay.drawUi(themes.desert);
+    } else if (this.level === 3) {
+      this.gamePlay.drawUi(themes.arctic);
+    } else if (this.level === 4) {
+      this.gamePlay.drawUi(themes.mountain);
+    }
     this.gamePlay.redrawPositions(this.playingField);
   }
 

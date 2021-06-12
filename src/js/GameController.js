@@ -40,6 +40,7 @@ export default class GameController {
     } else {
       this.startGame();
     }
+
     // this.startGame();
     this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
     this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
@@ -77,18 +78,7 @@ export default class GameController {
     this.activePersonTravelArr = [];
     this.activePotentialAttackArr = [];
     this.prizeScore = 0;
-    // ///
-
-    // this.gamePlay.addCellEnterListener(this.cursorsPointer.bind(this));
-    // this.gamePlay.addCellEnterListener(this.travelRadiusAndAttac.bind(this));
-
-    // this.gamePlay.addCellLeaveListener(this.noCursorsPointer.bind(this));
-    // this.gamePlay.addCellLeaveListener(this.noTravelRadiusAndAttac.bind(this));
-
-    // this.gamePlay.addCellClickListener(this.personSelect.bind(this));
-    // this.gamePlay.addCellClickListener(this.travel.bind(this));
-    // this.gamePlay.addCellClickListener(this.attack.bind(this));
-    // // //
+    this.gamePlay.activeInfo(this.level, this.prizeScore, this.finishScore);
 
     this.gamePlay.drawUi(themes.prairie);
     this.team.people = genPositioned(
@@ -106,19 +96,9 @@ export default class GameController {
   }
 
   levelUp() {
-    function activeInfo() {
-      const levelInfo = this.gamePlay.level;
-      const prizeScoreInfo = this.gamePlay.prizeScore;
-      const finishScoreInfo = this.gamePlay.finishScore;
-      levelInfo.innerText = `Level:${this.level}`;
-      prizeScoreInfo.innerText = `Текущий счет:${this.prizeScoreInfo}`;
-      finishScoreInfo.innerText = `Общий счет:${this.finishScoreInfo}`;
-    }
-
     /// 2level
     if (this.level === 1) {
       this.level += 1;
-      activeInfo();
       /// /genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -136,10 +116,10 @@ export default class GameController {
       this.gamePlay.drawUi(themes.desert);
       this.playingField = this.team.people.concat(this.team.ii);
       this.gamePlay.redrawPositions(this.playingField);
+      this.gamePlay.activeInfo(this.level, this.prizeScore, this.finishScore);
       /// /3level
     } else if (this.level === 2) {
       this.level += 1;
-      activeInfo();
       /// /genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -158,10 +138,10 @@ export default class GameController {
       this.gamePlay.drawUi(themes.arctic);
       this.playingField = this.team.people.concat(this.team.ii);
       this.gamePlay.redrawPositions(this.playingField);
+      this.gamePlay.activeInfo(this.level, this.prizeScore, this.finishScore);
       /// /4 level
     } else if (this.level === 3) {
       this.level += 1;
-      activeInfo();
       /// /genTeam
       this.team.people.forEach((person) => {
         person.character.levelUp();
@@ -180,6 +160,7 @@ export default class GameController {
       this.gamePlay.drawUi(themes.arctic);
       this.playingField = this.team.people.concat(this.team.ii);
       this.gamePlay.redrawPositions(this.playingField);
+      this.gamePlay.activeInfo(this.level, this.prizeScore, this.finishScore);
       ///Finish
     } else if (this.level === 4) {
       if (this.prizeScore > this.finishScore) {
@@ -519,6 +500,8 @@ export default class GameController {
     } else if (this.level === 4) {
       this.gamePlay.drawUi(themes.mountain);
     }
+    this.gamePlay.activeInfo(this.level, this.prizeScore, this.finishScore);
+
     this.gamePlay.redrawPositions(this.playingField);
   }
 

@@ -25,6 +25,15 @@ export default class GamePlay {
     this.container = container;
   }
 
+  activeInfo(level, prizeScore, finishScore) {
+    const levelInfo = this.level;
+    const prizeScoreInfo = this.prizeScore;
+    const finishScoreInfo = this.finishScore;
+    levelInfo.innerText = `Level:${level}`;
+    prizeScoreInfo.innerText = `Текущий счет:${prizeScore}`;
+    finishScoreInfo.innerText = `Общий счет:${finishScore}`;
+  }
+
   /**
    * Draws boardEl with specific theme
    *

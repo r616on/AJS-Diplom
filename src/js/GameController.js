@@ -353,7 +353,7 @@ export default class GameController {
           this.activePerson.attack -
             this.playingField.find((person) => person.position === cellIndex)
               .character.defence,
-          this.activePerson.attack * 0.1
+          this.activePerson.attack * 0.6
         )
       );
       // Damage run
@@ -448,17 +448,14 @@ export default class GameController {
     this.stateService.level = this.level;
     this.stateService.runningPeople = this.runningPeople;
     this.stateService.playingField = this.playingField;
-    this.stateService.activePersonPosition = this.activePersonPosition;
     this.stateService.save();
   }
 
   loadGame() {
     const data = this.stateService.load();
-    console.log(data);
     this.level = data.level;
     this.runningPeople = data.runningPeople;
     this.playingField = data.playingField;
-    this.activePersonPosition = data.setActivePerson;
     // this.setActivePerson(this.activePersonPosition);
     this.gamePlay.redrawPositions(this.playingField);
   }
@@ -510,30 +507,5 @@ export default class GameController {
     }
 
     //
-
-    //     //       // .map((person) => person.position);
-    //            iiPersonArr.forEach(index=>{
-    //      for(let i=1; i<5;i+=1){
-    //             let attacArr=genAvailableAttack(index.position,i);
-
-    //           }
-    //            })
-    //  function* generateIndxPeople(arr) {
-    //    for (let i = 0; i < arr.length; i += 1) {
-    //      yield arr[i];
-    //    }
-    //  }
-    //    let genPeople = generateIndxPeople(peoplePersonArrPos);
-    //    console.log(genPeople.next());
-    //    console.log(genPeople.next());
-    //    console.log(genPeople.next());
-    //     //       iiPersonArr.forEach(person=>{
-    //     //          if(genAvailableAttack(person.position,person.character.attackRange))
-    //        })
-    // peoplePersonArrPos.forEach(index=>{
-    //   if(genAvailableAttack(person.position,person.character.attackRange).includes(index)){
-
-    //   }
-    // })
   }
 }

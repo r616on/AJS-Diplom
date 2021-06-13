@@ -41,8 +41,6 @@ export default class GameController {
     }
 
     // this.startGame();
-    this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
-    this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
 
     this.gamePlay.addSaveGameListener(this.saveGame.bind(this));
     this.gamePlay.addLoadGameListener(this.loadGame.bind(this));
@@ -52,6 +50,13 @@ export default class GameController {
   }
 
   initListener() {
+    this.gamePlay.cellClickListeners = [];
+    this.gamePlay.cellEnterListeners = [];
+    this.gamePlay.cellLeaveListeners = [];
+
+    this.gamePlay.addCellEnterListener(this.personInfo.bind(this));
+    this.gamePlay.addCellLeaveListener(this.noPersonInfo.bind(this));
+
     this.gamePlay.addCellEnterListener(this.cursorsPointer.bind(this));
     this.gamePlay.addCellEnterListener(this.travelRadiusAndAttac.bind(this));
 

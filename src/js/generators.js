@@ -1,4 +1,3 @@
-import Team from './Team';
 import PositionedCharacter from './PositionedCharacter';
 
 /**
@@ -9,9 +8,9 @@ import PositionedCharacter from './PositionedCharacter';
  * @returns Character type children (ex. Magician, Bowman, etc)
  */
 function getRandom(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return (
+    Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + min
+  );
 }
 
 export function* characterGenerator(allowedTypes, maxLevel = 1) {
@@ -36,6 +35,7 @@ export function genPositioned(allowedTypes, player, oldTeam) {
   // Arr index people and ii
   const boardSize = 8;
   const indexArr = [];
+  let newAllowedTypes = allowedTypes;
   if (player === 'people') {
     for (let i = 0; i < boardSize * boardSize; i += 1) {
       if (i % boardSize === 0) {
@@ -54,28 +54,28 @@ export function genPositioned(allowedTypes, player, oldTeam) {
       }
     }
   }
+
   if (oldTeam) {
-    oldTeam = oldTeam.map((person) => person.character);
-    allowedTypes = allowedTypes.concat(oldTeam);
+    const newoldTeam = oldTeam.map((person) => person.character);
+    newAllowedTypes = newAllowedTypes.concat(newoldTeam);
   }
   let indexRandomArr = new Set();
   let i = 0;
-  while (i < allowedTypes.length) {
+  while (i < newAllowedTypes.length) {
     const random = getRandom(0, indexArr.length - 1);
     indexRandomArr.add(indexArr[random]);
-    if (indexRandomArr.size === allowedTypes.length) {
-      i = allowedTypes.length;
+    if (indexRandomArr.size === newAllowedTypes.length) {
+      i = newAllowedTypes.length;
     }
   }
   indexRandomArr = [...indexRandomArr];
 
   // new PositionedCharacterArr
   const PositionedCharacterArr = [];
-  for (let i = 0; i < allowedTypes.length; i += 1) {
+  for (let k = 0; k < newAllowedTypes.length; k += 1) {
     PositionedCharacterArr.push(
-      new PositionedCharacter(allowedTypes[i], indexRandomArr[i]),
+      new PositionedCharacter(newAllowedTypes[k], indexRandomArr[k]),
     );
   }
-
   return PositionedCharacterArr;
 }

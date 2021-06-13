@@ -2,41 +2,44 @@ import genAvailableTravel from './genAvailableTravel';
 
 export default function genAvailableAttack(index, num) {
   const size = 8;
-  const left_2_1 = [index - size * 2 - 1, index + size * 2 - 1];
-  const left_2_2 = [index - size - 2, index + size - 2];
-  const right_2_1 = [index - size * 2 + 1, index + size * 2 + 1];
-  const right_2_2 = [index - size + 2, index + size + 2];
-  const num_2_Full = left_2_1.concat(left_2_2, right_2_1, right_2_2);
+  const leftTwoOne = [index - size * 2 - 1, index + size * 2 - 1];
+  const leftTwoTwo = [index - size - 2, index + size - 2];
+  const rightTwoOne = [index - size * 2 + 1, index + size * 2 + 1];
+  const rightTwoTwo = [index - size + 2, index + size + 2];
+  const numTwoFull = leftTwoOne.concat(leftTwoTwo, rightTwoOne, rightTwoTwo);
 
-  const left_3_1 = [index - size * 3 - 1, index + size * 3 - 1];
-  const left_3_2 = [index + size * 3 - 2, index - size * 3 - 2];
-  const left_3_3 = [
+  const leftThreeOne = [index - size * 3 - 1, index + size * 3 - 1];
+  const leftThreeTwo = [index + size * 3 - 2, index - size * 3 - 2];
+  const leftThreeThree = [
     index - size - 3,
     index - size * 2 - 3,
     index + size - 3,
     index + size * 2 - 3,
   ];
-  const right_3_1 = [index - size * 3 + 1, index + size * 3 + 1];
-  const right_3_2 = [index + size * 3 + 2, index - size * 3 + 2];
-  const right_3_3 = [
+  const rightThreeOne = [index - size * 3 + 1, index + size * 3 + 1];
+  const rightThreeTwo = [index + size * 3 + 2, index - size * 3 + 2];
+  const rightThreeThree = [
     index - size + 3,
     index - size * 2 + 3,
     index + size + 3,
     index + size * 2 + 3,
   ];
-  const num_3_left_Full = left_3_1.concat(left_3_2, left_3_3);
-  const num_3_Right_Full = right_3_1.concat(right_3_2, right_3_3);
-  const num_3_Full = left_3_1.concat(
-    right_3_1,
-    right_3_2,
-    right_3_3,
-    left_3_2,
-    left_3_3,
+  const numThreeLeftFull = leftThreeOne.concat(leftThreeTwo, leftThreeThree);
+  const numThreeRightFull = rightThreeOne.concat(
+    rightThreeTwo,
+    rightThreeThree,
   );
-  const left_4_1 = [index - size * 4 - 1, index + size * 4 - 1];
-  const left_4_2 = [index - size * 4 - 2, index + size * 4 - 2];
-  const left_4_3 = [index - size * 4 - 3, index + size * 4 - 3];
-  const left_4_4 = [
+  const numThreeFull = leftThreeOne.concat(
+    rightThreeOne,
+    rightThreeTwo,
+    rightThreeThree,
+    leftThreeTwo,
+    leftThreeThree,
+  );
+  const leftFourOne = [index - size * 4 - 1, index + size * 4 - 1];
+  const leftFourTwo = [index - size * 4 - 2, index + size * 4 - 2];
+  const leftFourThree = [index - size * 4 - 3, index + size * 4 - 3];
+  const leftFourFour = [
     index - size - 4,
     index - size * 2 - 4,
     index - size * 3 - 4,
@@ -45,10 +48,10 @@ export default function genAvailableAttack(index, num) {
     index + size * 3 - 4,
   ];
 
-  const right_4_1 = [index - size * 4 + 1, index + size * 4 + 1];
-  const right_4_2 = [index - size * 4 + 2, index + size * 4 + 2];
-  const right_4_3 = [index - size * 4 + 3, index + size * 4 + 3];
-  const right_4_4 = [
+  const rightFourOne = [index - size * 4 + 1, index + size * 4 + 1];
+  const rightFourTwo = [index - size * 4 + 2, index + size * 4 + 2];
+  const rightFourThree = [index - size * 4 + 3, index + size * 4 + 3];
+  const rightFourFour = [
     index - size + 4,
     index - size * 2 + 4,
     index - size * 3 + 4,
@@ -56,10 +59,18 @@ export default function genAvailableAttack(index, num) {
     index + size * 2 + 4,
     index + size * 3 + 4,
   ];
-  const num_4_Right_Full = right_4_1.concat(right_4_2, right_4_3, right_4_4);
-  const num_4_Left_Full = left_4_1.concat(left_4_2, left_4_3, left_4_4);
+  const numForRightFull = rightFourOne.concat(
+    rightFourTwo,
+    rightFourThree,
+    rightFourFour,
+  );
+  const numForLeftFull = leftFourOne.concat(
+    leftFourTwo,
+    leftFourThree,
+    leftFourFour,
+  );
 
-  const num_4_Full = num_4_Right_Full.concat(num_4_Left_Full);
+  const numForFull = numForRightFull.concat(numForLeftFull);
   /// /////////////////////////////////////
   let arrResultFin = [];
   if (num === 1) {
@@ -67,23 +78,29 @@ export default function genAvailableAttack(index, num) {
   }
   if (num === 2) {
     if (index % size === 0) {
-      arrResultFin = genAvailableTravel(index, 2).concat(right_2_1, right_2_2);
+      arrResultFin = genAvailableTravel(index, 2).concat(
+        rightTwoOne,
+        rightTwoTwo,
+      );
     } else if ((index - 7) % size === 0) {
-      arrResultFin = genAvailableTravel(index, 2).concat(left_2_1, left_2_2);
+      arrResultFin = genAvailableTravel(index, 2).concat(
+        leftTwoOne,
+        leftTwoTwo,
+      );
     } else if ((index - 1) % size === 0) {
       arrResultFin = genAvailableTravel(index, 2).concat(
-        right_2_1,
-        right_2_2,
-        left_2_1,
+        rightTwoOne,
+        rightTwoTwo,
+        leftTwoOne,
       );
     } else if ((index - 6) % size === 0) {
       arrResultFin = genAvailableTravel(index, 2).concat(
-        right_2_1,
-        left_2_1,
-        left_2_2,
+        rightTwoOne,
+        leftTwoOne,
+        leftTwoTwo,
       );
     } else {
-      arrResultFin = genAvailableTravel(index, 2).concat(num_2_Full);
+      arrResultFin = genAvailableTravel(index, 2).concat(numTwoFull);
     }
   }
   /// /////////////////////
@@ -91,88 +108,88 @@ export default function genAvailableAttack(index, num) {
   if (num === 4) {
     if (index % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        right_2_1,
-        right_2_2,
-        num_3_Right_Full,
-        num_4_Right_Full,
+        rightTwoOne,
+        rightTwoTwo,
+        numThreeRightFull,
+        numForRightFull,
       );
     } else if ((index - 7) % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        left_2_1,
-        left_2_2,
-        num_3_left_Full,
-        num_4_Left_Full,
+        leftTwoOne,
+        leftTwoTwo,
+        numThreeLeftFull,
+        numForLeftFull,
       );
     } else if ((index - 1) % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        left_2_1,
-        left_3_1,
-        left_4_1,
-        right_2_1,
-        right_2_2,
-        num_3_Right_Full,
-        num_4_Right_Full,
+        leftTwoOne,
+        leftThreeOne,
+        leftFourOne,
+        rightTwoOne,
+        rightTwoTwo,
+        numThreeRightFull,
+        numForRightFull,
       );
     } else if ((index - 6) % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        right_2_1,
-        right_3_1,
-        right_4_1,
-        left_2_1,
-        left_2_2,
-        num_3_left_Full,
-        num_4_Left_Full,
+        rightTwoOne,
+        rightThreeOne,
+        rightFourOne,
+        leftTwoOne,
+        leftTwoTwo,
+        numThreeLeftFull,
+        numForLeftFull,
       );
     } else if ((index - 2) % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        num_2_Full,
-        left_3_1,
-        left_3_2,
-        left_4_1,
-        left_4_2,
-        num_3_Right_Full,
-        num_4_Right_Full,
+        numTwoFull,
+        leftThreeOne,
+        leftThreeTwo,
+        leftFourOne,
+        leftFourTwo,
+        numThreeRightFull,
+        numForRightFull,
       );
     } else if ((index - 5) % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        num_2_Full,
-        right_3_1,
-        right_3_2,
-        right_4_1,
-        right_4_2,
-        num_4_Left_Full,
-        num_3_left_Full,
+        numTwoFull,
+        rightThreeOne,
+        rightThreeTwo,
+        rightFourOne,
+        rightFourTwo,
+        numForLeftFull,
+        numThreeLeftFull,
       );
     } else if ((index - 3) % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        num_2_Full,
-        num_3_Full,
-        num_4_Right_Full,
-        left_4_1,
-        left_4_2,
-        left_4_3,
+        numTwoFull,
+        numThreeFull,
+        numForRightFull,
+        leftFourOne,
+        leftFourTwo,
+        leftFourThree,
       );
     } else if ((index - 4) % size === 0) {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        num_2_Full,
-        num_3_Full,
-        num_4_Left_Full,
-        right_4_1,
-        right_4_2,
-        right_4_3,
+        numTwoFull,
+        numThreeFull,
+        numForLeftFull,
+        rightFourOne,
+        rightFourTwo,
+        rightFourThree,
       );
     } else {
       arrResultFin = genAvailableTravel(index, 4).concat(
-        num_2_Full,
-        num_3_Full,
-        num_4_Full,
+        numTwoFull,
+        numThreeFull,
+        numForFull,
       );
     }
   }
   arrResultFin = arrResultFin.filter((item) => item > -1 && item < 64);
   arrResultFin = arrResultFin.sort((a, b) => {
     if (a > b) return 1;
-    if (a == b) return 0;
+    if (a === b) return 0;
     if (a < b) return -1;
   });
   return arrResultFin;

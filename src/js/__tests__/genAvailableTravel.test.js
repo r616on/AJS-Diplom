@@ -66,7 +66,7 @@ test.each(data)(
   (index, cells, expected) => {
     expected = expected.sort((a, b) => {
       if (a > b) return 1;
-      if (a == b) return 0;
+      if (a === b) return 0;
       if (a < b) return -1;
     });
     expect(genAvailableTravel(index, cells)).toEqual(expected);

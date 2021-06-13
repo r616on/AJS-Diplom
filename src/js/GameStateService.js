@@ -3,7 +3,7 @@ export default class GameStateService {
     this.storage = storage;
 
     this.level = 1;
-    this.running = "";
+    this.running = '';
     this.playingField = [];
     this.finishScore = 0;
     this.prizeScore = 0;
@@ -18,15 +18,14 @@ export default class GameStateService {
       finishScore: this.finishScore,
       prizeScore: this.prizeScore,
     };
-    console.log(saveData);
-    this.storage.setItem("state", JSON.stringify(saveData));
+    this.storage.setItem('state', JSON.stringify(saveData));
   }
 
   load() {
     try {
-      return JSON.parse(this.storage.getItem("state"));
+      return JSON.parse(this.storage.getItem('state'));
     } catch (e) {
-      throw new Error("Invalid state");
+      throw new Error('Invalid state');
     }
   }
 }

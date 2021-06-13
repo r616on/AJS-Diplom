@@ -1,18 +1,18 @@
 export default function genAvailableTravel(index, num) {
   const size = 8;
   /// ////////
-  function genArrPers(index, num, position = 'center') {
+  function genArrPers(ind, numb, position = 'center') {
     let arrResult = [];
-    const arrCentr = [index - size * num, index + size * num];
+    const arrCentr = [ind - size * numb, ind + size * numb];
     const arrLeft = [
-      index - size * num - 1 * num,
-      index - 1 * num,
-      index + size * num - 1 * num,
+      ind - size * numb - 1 * numb,
+      ind - 1 * numb,
+      ind + size * numb - 1 * numb,
     ];
     const arrRight = [
-      index - size * num + 1 * num,
-      index + 1 * num,
-      index + size * num + 1 * num,
+      ind - size * numb + 1 * numb,
+      ind + 1 * numb,
+      ind + size * numb + 1 * numb,
     ];
     if (position === 'noLeft') {
       arrResult = arrCentr.concat(arrRight);
@@ -118,10 +118,9 @@ export default function genAvailableTravel(index, num) {
       );
     }
   }
-  arrResultFin = arrResultFin.sort((a, b) => {
+  return arrResultFin.sort((a, b) => {
     if (a > b) return 1;
-    if (a == b) return 0;
+    if (a === b) return 0;
     if (a < b) return -1;
   });
-  return arrResultFin;
 }
